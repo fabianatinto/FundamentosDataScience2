@@ -1,0 +1,55 @@
+﻿
+//slide 2: Os artistas que mais venderam
+select Artist.ArtistId, Artist.Name, round(sum(InvoiceLine.UnitPrice),2) AS amountspent
+from Artist 
+left join Album  on Artist.ArtistId = Album.ArtistId
+left join Track  on Album.AlbumId = Track.AlbumId
+left join InvoiceLine on Track.TrackId = InvoiceLine.TrackId
+group by Artist.ArtistId, Artist.Name
+order by amountspent desc
+
+//slide 3: Os albuns de rock que mais venderam
+select Album.AlbumId,
+	   Album.Title,
+	   count(*) as music
+from Album
+left join Track on Album.AlbumId = Track.AlbumId
+left join Genre on Track.GenreId = Genre.GenreId
+where Genre.Name = 'Rock'
+group by Album.AlbumId
+order by music desc
+
+
+//slide 4: os artistas de rock que mais venderam
+
+select Artist.ArtistId,
+	   Artist.Name,
+	   count(*)songs
+from Artist
+left join Album on Artist.ArtistId = Album.ArtistId
+left join Track on Album.AlbumId = Track.AlbumId
+left join Genre on Track.GenreId = Genre.GenreId
+where Genre.Name = 'Rock'
+group by Artist.ArtistId, Artist.Name
+order by songs desc	  
+
+
+//slide 5
+select sub2.Purchases,sub3.Country,sub3.Name,sub3.GenreId
+from (select max(sub1.Quantity)Purchases,Country,Name,GenreId
+      from (select sum(il.Quantity) Quantity, c.Country Country, g.Name Name, g.GenreId GenreId
+	        from InvoiceLine il
+			left join Invoice i on i.Invoiceid = il.InvoiceId
+			left join Customer c on c.CustomerId = i.CustomerId
+			left join Track t on t.TrackId = il.TrackId
+			left join Genre g on g.GenreId = t.GenreId
+			group by c.Country, g.Name, g.GenreId)sub1
+	  group by Country)sub2
+left join (select sum(il.Quantity) Quantity, c.Country Country, g.Name Name, g.GenreId GenreId
+           from InvoiceLine il
+		   left join Invoice i on i.InvoiceId = il.InvoiceId
+		   left join Customer c on c.CustomerId = i.CustomerId
+		   left join Track t on t.TrackId = il.TrackId
+		   left join Genre g on g.GenreId = t.GenreId
+		   group by c.Country, g.Name,g.GenreId)sub3
+on sub2.Country = sub3.Country and sub2.Purchases = sub3.Quantity		   
